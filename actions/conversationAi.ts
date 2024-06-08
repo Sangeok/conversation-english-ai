@@ -1,7 +1,7 @@
 "use server";
 import openai from "@/lib/openai";
 
-export const conversationAi = async(text : string) => {
+export const conversationAi = async (text : string) => {
     if(!text) return null;
 
     // text를 받아왔다면 ai에게 보내고 그 응답을 받아서 return해주면 되겠죠?

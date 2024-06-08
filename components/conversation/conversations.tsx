@@ -4,19 +4,45 @@ import 'regenerator-runtime/runtime'
 import { Mic } from "lucide-react";
 import { SendHorizonal } from 'lucide-react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {conversationAi} from '@/actions/conversationAi';
 
 export default function Conversations() {
-    // 나중에는 내가 말한 것을 들어보는 기능도 나쁘지않을 거 같다.
     const [isMounted, setIsMounted] = useState<boolean>(false);
     const [messages, setMessages] = useState<messagesType[]>([]);
+    const [speaking, setSpeaking] = useState<boolean>(false);
+    const [audioUrl, setAudioUrl] = useState<string>("");
 
-    // message 타입을 새로 만들어야 할듯.
-    // string과 boolean으로 이루어진 객체로 만들어야 할듯.
-    // boolean은 내꺼냐 아니냐를 판단하는것으로 하면 될듯.
-    // 그리고 이걸로 왼쪽 오른쪽을 판단하면 될듯.
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    const handleGetAudio = async (text: string) => {
+        try {
+          const response = await fetch("http://localhost:3000/api/generate-sound", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              text: text,
+            }),
+          });
+    
+          if (!response.ok) {
+            throw new Error("Failed to fetch audio data");
+          }
+    
+          const data = await response.arrayBuffer();
+    
+          const blob = new Blob([data], { type: "audio/mpeg" });
+          const audioUrl = URL.createObjectURL(blob);
+
+          setAudioUrl(audioUrl);
+    
+        } catch (error) {
+          console.error(error)
+        }
+      };
 
     const handleFetchMessages = async () => {
         const newMessage = {
@@ -26,9 +52,11 @@ export default function Conversations() {
 
         setMessages((prevMessages : messagesType[]) => [...prevMessages, newMessage]);
         resetTranscript();
-
+        
+        // response 받으면 바로 text to speech로 읽어줘야 함.
         const responseMessages = await conversationAi(transcript);
         if(responseMessages) {
+            const res = await handleGetAudio(responseMessages.message);
             setMessages((prevMessages : messagesType[]) => [...prevMessages, responseMessages]);
         }
     };
@@ -44,25 +72,22 @@ export default function Conversations() {
         setIsMounted(true);
     }, []);
 
+    useEffect(() => {
+        if (audioRef.current && audioUrl) {
+            const audioElement = audioRef.current;
+            audioElement.load();
+            audioElement.onloadeddata = () => {
+                audioElement.play().catch((error) => {
+                    console.error("Error playing audio:", error);
+                });
+            };
+        }
+    }, [audioUrl])
+
     if(!isMounted) return null;
-
-
-    if (!browserSupportsSpeechRecognition) {
-        return <span>Browser doesnt support speech recognition.</span>;
-    }
 
     const handleStartListening = () => {
         SpeechRecognition.startListening();
-    }
-    
-    const handleSubmitMessage = () => {
-        const newMessage = {
-            message: transcript,
-            isMine: true
-        };
-
-        setMessages((prevMessages : messagesType[]) => [...prevMessages, newMessage]);
-        resetTranscript();
     }
 
     return (
@@ -72,8 +97,6 @@ export default function Conversations() {
                     {
                         
                         messages.map((messageObj, index) => (
-                            // 메세지가 내꺼냐에 따라 왼쪽 오른쪽 나누는것도 해줘야함.
-                            
                             <div 
                                 key={index} 
                                 className={`p-2 rounded-lg max-w-xl ${
@@ -87,6 +110,17 @@ export default function Conversations() {
                         ))
                     }
                 </div>
+            </div>
+
+            
+            <div className="invisible">
+                {
+                    audioUrl && (
+                        <audio controls autoPlay ref={audioRef}>
+                            <source src={audioUrl} type="audio/flac" />
+                        </audio>
+                    )
+                }
             </div>
 
             <div className="flex">
