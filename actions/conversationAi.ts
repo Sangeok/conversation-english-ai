@@ -1,4 +1,5 @@
 "use server";
+
 import openai from "@/lib/openai";
 
 export const conversationAi = async (text : string) => {
@@ -10,28 +11,42 @@ export const conversationAi = async (text : string) => {
         messages : [
             {
                 role: "system", 
-                content: "You are a helpful assistant for English teaching."
+                content: `You are a helpful assistant for English conversation to correct the user's ${text}`
             },
             {
                 role : 'user',
                 content : `
-                Identify and correct grammatical issues in the user's text: "${text}" (excluding uppercase and lowercase issues).
-                1. If there are grammatical errors:
-                1.1 Provide the correct sentence as a teacher would to a student.
-                1.2 Explain why the original text is wrong.
-                1.3 Respond to the corrected sentence naturally and ask a related question to continue the conversation.
-                Note: Ignore comma and punctuation issues.
+                    Recognize the user's ${text} as a speech, and point out the wrong part ${text} as a speech.
+                    (Do not provide Commas, comma, capitalization, punctuation, contraction , or any marks issues)
+                    
+                    you answer the following.
+                    
+                    If there is an error in the ${text} as a speech, do the following
+                    - Provide the corrected ${text} as a speech starting 'correct sentense is'.
+                    - Explain why ${text} as a speech is wrong.
+                    - Respond to the corrected sentence and ask a related question to continue the conversation.
+                    - But do not provide original text in the answer.
 
-                2. If there are no grammatical errors:
-                Answer the question and continue the conversation with a related question.
+                    If there are no error in the ${text} as a speech, do the following
+                    - Answer the question and continue the conversation with a related question.
 
-                Do not provide ${text}.
-                Do not provide answers that are just numbers.
-                Respond as if talking to a person.
+                    answer with following the options below.
+                    - Tone : polite
+                    - Style : accurate
+                    - Reader level : university student
+                    - Length : Within 100 characters
+                    - Format : To print out as a dialog
+                    - Answer me in English
+
+                    Do not provide the same answer as the previous answer.
+                    Do not provide ${text} in the answer.
                 `
                 
             },
         ],
+        temperature: 0.7,
+        max_tokens: 64,
+        top_p: 1,
     });
 
     console.log(aiResponse.choices[0].message.content);
