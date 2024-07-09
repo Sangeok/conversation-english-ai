@@ -24,7 +24,7 @@ export async function POST(request : Request) {
     console.log("response : " + response);
     
     if(!response.ok){
-        throw new Error("Request Failed")
+        throw new Error("Request Failed");
     }
 
     const audioData = await response.arrayBuffer();

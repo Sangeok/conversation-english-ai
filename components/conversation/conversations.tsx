@@ -7,42 +7,19 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 import { useEffect, useRef, useState } from 'react';
 
 import {conversationAi} from '@/actions/conversationAi';
+import { useAudio} from '@/hooks/useAudio';
+
+import {AudioUtils} from '@/utils/audioUtils';
 
 export default function Conversations() {
     const [isMounted, setIsMounted] = useState<boolean>(false);
     const [messages, setMessages] = useState<MessagesType[]>([]);
     const [speaking, setSpeaking] = useState<boolean>(false);
-    const [audioUrl, setAudioUrl] = useState<string>("");
-
-    const audioRef = useRef<HTMLAudioElement>(null);
-
-    const handleGetAudio = async (text: string) => {
-        try {
-          const response = await fetch("http://localhost:3000/api/generate-sound", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              text: text,
-            }),
-          });
-    
-          if (!response.ok) {
-            throw new Error("Failed to fetch audio data");
-          }
-    
-          const data = await response.arrayBuffer();
-    
-          const blob = new Blob([data], { type: "audio/mpeg" });
-          const audioUrl = URL.createObjectURL(blob);
-
-          setAudioUrl(audioUrl);
-    
-        } catch (error) {
-          console.error(error)
-        }
-      };
+    const {
+        audioUrl,
+        setAudioUrl,
+        audioRef
+    } = useAudio();
 
     const handleFetchMessages = async () => {
         const newMessage = {
@@ -56,33 +33,20 @@ export default function Conversations() {
         // response 받으면 바로 text to speech로 읽어줘야 함.
         const responseMessages = await conversationAi(transcript);
         if(responseMessages) {
-            const res = await handleGetAudio(responseMessages.message);
+            const res = await AudioUtils(responseMessages.message);
+            setAudioUrl(res);
             setMessages((prevMessages : MessagesType[]) => [...prevMessages, responseMessages]);
         }
     };
 
     const {
         transcript,
-        listening,
         resetTranscript,
-        browserSupportsSpeechRecognition,
     } = useSpeechRecognition();
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
-
-    useEffect(() => {
-        if (audioRef.current && audioUrl) {
-            const audioElement = audioRef.current;
-            audioElement.load();
-            audioElement.onloadeddata = () => {
-                audioElement.play().catch((error) => {
-                    console.error("Error playing audio:", error);
-                });
-            };
-        }
-    }, [audioUrl])
 
     if(!isMounted) return null;
 
@@ -94,8 +58,7 @@ export default function Conversations() {
         <div className="flex flex-col pt-16 h-screen">
             <div className="p-6 flex-grow">
                 <div className="flex flex-col w-full space-y-4">
-                    {
-                        
+                    { 
                         messages.map((messageObj, index) => (
                             <div 
                                 key={index} 
@@ -112,7 +75,6 @@ export default function Conversations() {
                 </div>
             </div>
 
-            
             <div className="invisible">
                 {
                     audioUrl && (
