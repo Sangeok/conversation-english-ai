@@ -1,17 +1,11 @@
 import { ModeToggle } from "@/components/modeToggle";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import StartedButton from "@/components/ui/startedButton";
 
 export default function Home() {
     return (
-      <div className="flex flex-col justify-between h-screen">
-
-        <div className="flex justify-end mt-4 mr-4">
-          <ModeToggle />
-        </div>
-
-        <div>
-          <div className="flex justify-around">
+      <div className="flex flex-col justify-between h-screen pt-16">
+        <div className="flex flex-col items-center justify-center flex-grow">
+          <div className="flex w-3/4 justify-around">
             
             <div className="max-w-96">
               <h1 className="text-2xl">English Conversation Practice</h1>
@@ -24,9 +18,7 @@ export default function Home() {
               </p>
             </div>
             <div className="flex">
-              <Button variant="secondary" className="self-center">
-                <ArrowRight className="mr-2"/> Get Started
-              </Button>
+              <StartedButton />
             </div>
           </div>
         </div>
