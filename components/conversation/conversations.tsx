@@ -10,7 +10,7 @@ import {conversationAi} from '@/actions/conversationAi';
 
 export default function Conversations() {
     const [isMounted, setIsMounted] = useState<boolean>(false);
-    const [messages, setMessages] = useState<messagesType[]>([]);
+    const [messages, setMessages] = useState<MessagesType[]>([]);
     const [speaking, setSpeaking] = useState<boolean>(false);
     const [audioUrl, setAudioUrl] = useState<string>("");
 
@@ -50,14 +50,14 @@ export default function Conversations() {
             isMine: true
         };
 
-        setMessages((prevMessages : messagesType[]) => [...prevMessages, newMessage]);
+        setMessages((prevMessages : MessagesType[]) => [...prevMessages, newMessage]);
         resetTranscript();
         
         // response 받으면 바로 text to speech로 읽어줘야 함.
         const responseMessages = await conversationAi(transcript);
         if(responseMessages) {
             const res = await handleGetAudio(responseMessages.message);
-            setMessages((prevMessages : messagesType[]) => [...prevMessages, responseMessages]);
+            setMessages((prevMessages : MessagesType[]) => [...prevMessages, responseMessages]);
         }
     };
 
