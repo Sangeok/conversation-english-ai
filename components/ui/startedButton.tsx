@@ -6,13 +6,13 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function StartedButton() {
-    useEffect(() => {
-        async function fetchData() {
-            const res = await fetch('http://localhost:8080/api/users');
-            console.log(res.json());
-        }
-        fetchData();
-    }, [])
+    // useEffect(() => {
+    //     async function fetchData() {
+    //         const res = await fetch('http://localhost:8080/api/users');
+    //         console.log(res.json());
+    //     }
+    //     fetchData();
+    // }, [])
     
     const router = useRouter();
 
