@@ -66,13 +66,6 @@ describe('audio play using useAudio hook', () => {
             value: mockElement
         });
 
-        Object.defineProperty(result.current.audioRef.current, 'onloadeddata', {
-            writable: true,
-            value: () => {
-                mockElement.play();
-            }
-        });
-
         act(() => {
             if (result.current.audioRef.current && result.current.audioRef.current.onloadeddata) {
                 (result.current.audioRef.current.onloadeddata as Function)();
