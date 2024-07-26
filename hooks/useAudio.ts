@@ -6,13 +6,13 @@ export function useAudio() {
 
     useEffect(() => {
         if (audioRef.current && audioUrl) {
-            const audioElement = audioRef.current;
-            audioElement.load();
-            audioElement.onloadeddata = () => {
-                audioElement.play().catch((error) => {
-                    console.error("Error playing audio:", error);
-                });
-            };
+                const audioElement = audioRef.current;
+                audioElement.load();
+                audioElement.onloadeddata = () => {
+                    audioElement.play().catch((error) => {
+                        console.error("Error playing audio:", error);
+                    });
+                };
         }
     }, [audioUrl]);
 

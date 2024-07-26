@@ -10,6 +10,7 @@ import {conversationAi} from '@/actions/conversationAi';
 import { useAudio} from '@/hooks/useAudio';
 
 import {AudioUtils} from '@/utils/audioUtils';
+import AudioPlayer from '../audioPlayer';
 
 export default function Conversations() {
     const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -76,13 +77,10 @@ export default function Conversations() {
             </div>
 
             <div className="invisible">
-                {
-                    audioUrl && (
-                        <audio controls autoPlay ref={audioRef}>
-                            <source src={audioUrl} type="audio/flac" />
-                        </audio>
-                    )
-                }
+                <AudioPlayer
+                    audioRef={audioRef}
+                    audioUrl={audioUrl}
+                />
             </div>
 
             <div className="flex">

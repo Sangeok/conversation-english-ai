@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+    transpilePackages: ["contentlayer", "@contentlayer/client"]
+};
 
 export default nextConfig;
